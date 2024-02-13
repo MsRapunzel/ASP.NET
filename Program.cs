@@ -1,42 +1,79 @@
-﻿using ASP.NET;
-using Microsoft.Extensions.Configuration;
+﻿using labWork;
+using labWork.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddTransient<CalcController>();
+builder.Services.AddTransient<TimeController>();
+
 var app = builder.Build();
 
-builder.Configuration.
-    AddIniFile("Configuration/ConfigGoogle.ini").
-    AddJsonFile("Configuration/ConfigApple.json").
-    AddXmlFile("Configuration/ConfigMicrosoft.xml").
-    AddJsonFile("Configuration/PersonalInfo.json");
-
-app.Map("/task1", (IConfiguration config) =>
+app.MapGet("/task1", async (context) =>
 {
-    var companies = new List<Company>();
+    var calcController = app.Services.GetService<CalcController>();
 
-    foreach (var company in config.GetSection("Company").GetChildren())
+    var a = float.Parse(context.Request.Query["a"]);
+    var b = float.Parse(context.Request.Query["b"]);
+    var operation = context.Request.Query["operation"].ToString();
+
+    var answer = "None";
+
+    switch (operation)
     {
-        var name = company.Key;
-        var amount = int.Parse(company.GetSection("employees").Value);
-
-        companies.Add(new Company(name, amount));
+        case "add":
+            answer = $"{a} + {b} = {calcController?.Add(a, b)}";
+            break;
+        case "substract":
+            answer = $"{a} - {b} = {calcController?.Substract(a, b)}";
+            break;
+        case "multiply":
+            answer = $"{a} * {b} = {calcController?.Multiply(a, b)}";
+            break;
+        case "divide":
+            try
+            {
+                answer = $"{a} / {b} = {calcController?.Divide(a, b)}";
+            }
+            catch (Exception ex)
+            {
+                answer = ex.Message;
+            }
+            break;
+        default:
+            break;
     }
 
-    var companyWithMostEmployees = companies.OrderByDescending(c => c.Employees).FirstOrDefault();
-
-    return $"The company with the most employees is {companyWithMostEmployees?.Name} ({companyWithMostEmployees?.Employees})";
+    await context.Response.WriteAsync(answer);
 });
 
-app.MapGet("/task2", (IConfiguration config) =>
+app.MapGet("/task2", async (context) =>
 {
-    var person = config.GetSection("Person");
-    var name = person.GetSection("name").Value;
-    var age = person.GetSection("age").Value;
+    var timeController = app.Services.GetService<TimeController>();
 
-    var languagesList = person.GetSection("languages").GetChildren().Select(x => x.Value).ToList();
-    var languages = string.Join(", ", languagesList);
+    var time = timeController?.GetTime().ToShortTimeString();
+    var hour = timeController?.GetTime().Hour;
 
-    return $"My name is {name}, I am {age} years old, and I know {languagesList.Count} languages: {languages}.";
+    var message = $"it's {time} o'clock now.";
+
+    switch (hour)
+    {
+        case int t when (hour >= 12 && hour <= 17):
+            message = $"Good day, " + message;
+            break;
+        case int t when (hour >= 18 && hour <= 23):
+            message = $"Good evening, " + message;
+            break;
+        case int t when (hour >= 00 && hour <= 5):
+            message = $"Good night, " + message;
+            break;
+        case int t when (hour >= 6 && hour <= 11):
+            message = $"Good morning, " + message;
+            break;
+        default:
+            break;
+    }
+
+    await context.Response.WriteAsync(message);
 });
 
 app.Run();

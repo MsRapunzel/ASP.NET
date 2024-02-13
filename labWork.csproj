@@ -7,9 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Configuration\" />
+    <None Remove="Interfaces\" />
+    <None Remove="Controllers\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Configuration\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 </Project>
