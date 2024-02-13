@@ -1,0 +1,10 @@
+﻿{
+  "Person": {
+    "name": "Anastasiia",
+    "age": 19,
+    "languages": [
+      "Ukrainian",
+      "English"
+    ]
+  }
+}
