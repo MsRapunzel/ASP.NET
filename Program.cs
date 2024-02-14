@@ -1,79 +1,58 @@
-﻿using labWork;
-using labWork.Controllers;
+﻿using labWork.Models;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder();
 
-builder.Services.AddTransient<CalcController>();
-builder.Services.AddTransient<TimeController>();
+builder.Services.AddTransient<Book>();
+builder.Services.AddTransient<User>();
+
+builder.Configuration.
+    AddJsonFile("Configuration/Books.json").
+    AddJsonFile("Configuration/Users.json");
 
 var app = builder.Build();
 
-app.MapGet("/task1", async (context) =>
+app.Map("/Library", () => "Greetings!");
+
+app.Map("/Library/Books", (HttpContext context, IConfiguration config) =>
 {
-    var calcController = app.Services.GetService<CalcController>();
+    context.Response.ContentType = "text/html; charset=utf-8";
+    var stringBuilder = new System.Text.StringBuilder("<table style=\"width:450px;\">");
 
-    var a = float.Parse(context.Request.Query["a"]);
-    var b = float.Parse(context.Request.Query["b"]);
-    var operation = context.Request.Query["operation"].ToString();
+    var books = config.GetSection("library:books").Get<Book[]>();
 
-    var answer = "None";
+    stringBuilder.Append("" +
+        "<tr>" +
+            "<th>Title</th>" +
+            "<th>Author</th>" +
+            "<th>Date Of Publishing</th>" +
+        "</tr>");
 
-    switch (operation)
+    foreach (var item in books)
     {
-        case "add":
-            answer = $"{a} + {b} = {calcController?.Add(a, b)}";
-            break;
-        case "substract":
-            answer = $"{a} - {b} = {calcController?.Substract(a, b)}";
-            break;
-        case "multiply":
-            answer = $"{a} * {b} = {calcController?.Multiply(a, b)}";
-            break;
-        case "divide":
-            try
-            {
-                answer = $"{a} / {b} = {calcController?.Divide(a, b)}";
-            }
-            catch (Exception ex)
-            {
-                answer = ex.Message;
-            }
-            break;
-        default:
-            break;
+        stringBuilder.Append("" +
+            "<tr>" +
+                $"<td>{item.Title}</td>" +
+                $"<td>{item.Author}</td>" +
+                $"<td>{item.DateOfRelease}</td>" +
+            "</tr>");
     }
 
-    await context.Response.WriteAsync(answer);
+    stringBuilder.Append("</table>");
+
+    return $"{stringBuilder}";
 });
 
-app.MapGet("/task2", async (context) =>
+app.Map("/Library/Profile/{id:range(0,5):int?}", (int? id, IConfiguration config) =>
 {
-    var timeController = app.Services.GetService<TimeController>();
-
-    var time = timeController?.GetTime().ToShortTimeString();
-    var hour = timeController?.GetTime().Hour;
-
-    var message = $"it's {time} o'clock now.";
-
-    switch (hour)
+    if (!id.HasValue)
     {
-        case int t when (hour >= 12 && hour <= 17):
-            message = $"Good day, " + message;
-            break;
-        case int t when (hour >= 18 && hour <= 23):
-            message = $"Good evening, " + message;
-            break;
-        case int t when (hour >= 00 && hour <= 5):
-            message = $"Good night, " + message;
-            break;
-        case int t when (hour >= 6 && hour <= 11):
-            message = $"Good morning, " + message;
-            break;
-        default:
-            break;
+        return $"There is no user, you did not add user id.";
     }
 
-    await context.Response.WriteAsync(message);
+    var users = config.GetSection("profile:users").Get<User[]>();
+    var user = users.FirstOrDefault(user => user.Id == id);
+
+    return $"User is {user.Name}";
 });
 
 app.Run();
