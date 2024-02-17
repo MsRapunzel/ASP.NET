@@ -1,0 +1,12 @@
+Time:					2/17/2024 5:21:19PM
+Request Path:			/set-cookies
+Request Method:			POST
+Form Data: value = 342760575891993352
+Form Data: expiration = 2024-02-01T17:21
+System.Exception: Value "342760575891993352" is expired.
+   at Program.<>c.<<<Main>$>b__0_2>d.MoveNext() in /Users/rapunzel/Projects/5th_term/ASP.NET/lr1/Program.cs:line 67
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|6_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at Program.<>c__DisplayClass0_0.<<<Main>$>b__0>d.MoveNext() in /Users/rapunzel/Projects/5th_term/ASP.NET/lr1/Program.cs:line 15
+
+Connection id "0HN1FPGA36078", Request id "0HN1FPGA36078:00000002": An unhandled exception was thrown by the application.

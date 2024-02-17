@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Configuration\" />
-    <None Remove="Models\" />
+    <None Remove="Logging\" />
+    <None Remove="Providers\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Configuration\" />
-    <Folder Include="Models\" />
+    <Folder Include="Logging\" />
+    <Folder Include="Providers\" />
   </ItemGroup>
 </Project>
